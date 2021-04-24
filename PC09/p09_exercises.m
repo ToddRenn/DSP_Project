@@ -133,7 +133,7 @@ y2_fin = firfilt(filt2_2,y2);   % Deconvolve horizontally
 figure(5); image(y2_fin); title('Deconv: M = 22');
 
 % M = 33, r = 0.9
-filt2_3 = fir(33,0.913);
+filt2_3 = fir(33,0.9);
 y3 = firfilt(filt2_3',ech90);  % Deconvolve vertically
 y3_fin = firfilt(filt2_3,y3);   % Deconvolve horizontally
 figure(6); image(y3_fin); title('Deconv: M = 33');
@@ -174,12 +174,14 @@ clear sound
     % QUESTION: Derive impulse response for cascade of 4 delays
 song_delay4 = firfilt(delay, firfilt(delay, firfilt(delay, firfilt(delay, sample))));
 %clear sound
-sound(song_delay4,Fs)
+%sound(song_delay4,Fs)
 
 % d) QUESTION: Describe sound you hear and use impulse response to explain
 % e) Plot the original + delay
 figure(1); inout(sample, song_delay, 1, Fs, 4); title('Single delay');
 figure(2); inout(sample, song_delay4, 1, Fs, 4); title('Reverb');
+
+audiowrite('nggyu_reverb.wav',song_delay4,Fs);
 
 %% FUNCTIONS
 function y = restore(w,M,r)
