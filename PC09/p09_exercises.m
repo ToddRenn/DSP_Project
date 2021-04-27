@@ -1,13 +1,20 @@
 % This file contains the lab exercises for P-09
-%% 3.1: Deconvolution Experiment for 1D Filters
+%% Load data
+%   x1: Stair-step input signal
+%   x2: Speech waveform ("Oak is strong") - f = 8k samples/sec
+%   xtv: Actual scan line from a digital image
+%   h1: FIR coefficients
+%   h2: FIR coefficients (more)
 clc
 clear
+load labdat.mat
+
+%% 3.1: Deconvolution Experiment for 1D Filters
 % w[n] = x[n] - 0.9x[n-1]
 xx_3_1 = 256*(rem(0:100,50)<10);    % bool(#mod50 < 10) -> logical 1/0
 %xx = [zeros(1) xx];
-bb_3_1 = [1 -0.9];
+bb_3_1 = [1 -0.9];  % first-difference filter
 w_n_3_1 = firfilt(bb_3_1,xx_3_1);
-
 nn=1:75;
 
 figure(1)
@@ -18,7 +25,7 @@ stem(nn,w_n_3_1(nn),'filled'); title('w[n]');
 
 %% 3.1.1: Restoration Filter
 r = 0.9;
-M = 22;
+M = 73;
 
 % a) Process w_n with restoration filter
 yy_3_1_1 = restore(w_n_3_1,M,r);
@@ -71,17 +78,33 @@ filt2 = zeros(1,M);
 for n = 1:length(filt2)+1
     filt2(n) = 0.9^(n-1);
 end
+
+% Frequency response of individual filters + system
+N=150;
+w=-pi:2*pi/N:pi-2*pi/N;
+H1=fft(filt1,N);
+H2=fft(filt2,N);
+Hsys=H1.*H2;
+plot(w/(2*pi),abs(H2));hold on
+plot(w/(2*pi),abs(H1));
+plot(w/(2*pi),abs(Hsys));
+title('Cascade of FIR Filters H_1, H_2');
+legend('|H_1|','|H_2|','|H_S_Y_S|');
+xlabel('\omega');ylabel('|H(\omega)|');
+
 %% 3.2.1 Overall Impulse Response
 % a) Implement cascade with q=0.9, r=0.9, M=22.
 % Use two calls to firfilt()
 y_3_2_1 = firfilt(filt2, firfilt(filt1, x1));
 
 % Plot impulse response.
+figure;
 hold on
 plot(x1)
 plot(y_3_2_1(1:length(x1)))
 title('Deconvolution');
 legend('original','deconv');
+xlabel('n');
 hold off
 
 % b) Work out impulse response h(n) of this cascade by hand. Verify
@@ -93,14 +116,13 @@ hold off
 %% 3.2.2 Distoring and Restoring Images
 % a) Load echart.mat
 load echart.mat
-
 % b) Apply filt1 horizontally and then vertically (q=0.9)
-w = firfilt(filt1, echart);    % Horizontal
-ech90 = firfilt(filt1', w);    % Vertical
+w = conv2(echart,filt1);    % Horizontal
+ech90 = conv2(w,filt1');    % Vertical
 
 % c) Deconvolve with filt2 (M=22, r=0.9)
-y = firfilt(filt2',ech90);      % Deconvolve vertically
-y_fin = firfilt(filt2,y);   % Deconvolve horizontally
+y = conv2(ech90,filt2');      % Deconvolve vertically
+y_fin = conv2(y,filt2);   % Deconvolve horizontally
 % NOTE: The order of deconvolution doesn't matter (because cascade systems
 % are just multiplications in frequency domain)
 
@@ -117,38 +139,31 @@ figure(3); image(y_fin); title('Deconv');
 % Calculate how big the ghosts (echoes) are using worst-case error to say
 % how big the ghosts are relative to "black-white" transitions which are
 % 0-255: 
+error2D(echart,y_fin)
 
 %% 3.2.3 A Second Restoration Experiment
 % a) Deconvolve with different number of taps
 % M = 11, r = 0.9
 filt2_1 = fir(11,0.9);
-y1 = firfilt(filt2_1',ech90);  % Deconvolve vertically
-y1_fin = firfilt(filt2_1,y1);   % Deconvolve horizontally
+y1 = conv2(filt2_1',ech90);  % Deconvolve vertically
+y1_fin = conv2(filt2_1,y1);   % Deconvolve horizontally
 figure(4); image(y1_fin); title('Deconv: M = 11');
 
 % M = 22, r = 0.9
 filt2_2 = fir(22,0.9);
-y2 = firfilt(filt2_2',ech90);  % Deconvolve vertically
-y2_fin = firfilt(filt2_2,y2);   % Deconvolve horizontally
+y2 = conv2(filt2_2',ech90);  % Deconvolve vertically
+y2_fin = conv2(filt2_2,y2);   % Deconvolve horizontally
 figure(5); image(y2_fin); title('Deconv: M = 22');
 
 % M = 33, r = 0.9
 filt2_3 = fir(33,0.9);
-y3 = firfilt(filt2_3',ech90);  % Deconvolve vertically
-y3_fin = firfilt(filt2_3,y3);   % Deconvolve horizontally
+y3 = conv2(filt2_3',ech90);  % Deconvolve vertically
+y3_fin = conv2(filt2_3,y3);   % Deconvolve horizontally
 figure(6); image(y3_fin); title('Deconv: M = 33');
 
-% Best result was M = 33. As you increase the number of taps, the
-% background color becomes more similar to original image and the ghost
-% images fade into it. However, the bottom blue bar becomes larger. This is
-% a result of increasing the number of rows and can be eliminated by taking
-% only the first ~250 rows. 
-% Explain how this is a result of the math: 
-%   Hint: determine impulse response and relate it to theimage
-%   Hint: use dconvdemo to generate h(n) for the systems (like the warmup)
-
-% b) Gray scale has 256 levels. How large is the worst-case error in terms
-% of gray levels? Do for each of the filters in (a).
+% Error
+error2D(echart,y1_fin)
+error2D(echart,y3_fin)
 
 %% Extra Credit: Filtering Music Waveform
 [nggyu,Fs] = audioread('nggyu.wav');
@@ -174,12 +189,12 @@ clear sound
     % QUESTION: Derive impulse response for cascade of 4 delays
 song_delay4 = firfilt(delay, firfilt(delay, firfilt(delay, firfilt(delay, sample))));
 %clear sound
-%sound(song_delay4,Fs)
+sound(song_delay4,Fs)
 
 % d) QUESTION: Describe sound you hear and use impulse response to explain
 % e) Plot the original + delay
-figure(1); inout(sample, song_delay, 1, Fs, 4); title('Single delay');
-figure(2); inout(sample, song_delay4, 1, Fs, 4); title('Reverb');
+figure; inout(sample, song_delay, 1, Fs, 4); title('Single delay');
+figure; inout(sample, song_delay4, 1, Fs, 4); title('Reverb');
 
 audiowrite('nggyu_reverb.wav',song_delay4,Fs);
 
@@ -208,4 +223,24 @@ function y = fir(M,r)
     for n = 1:length(y)
         y(n) = r^(n-1);
     end
+end
+
+function error2D(orig,recon)
+    % This function calculates and plots the difference between
+    % an original and reconstructred signal
+    % orig: Original MxN image
+    % recon: Reconstructed MxN image
+    for r=1:257
+        for c=1:256
+            error(r,c)=abs(orig(r,c)-recon(r,c));
+        end
+    end
+    figure;
+    subplot(1,2,1);
+    image(error);title('Deconvolution 2D Error');
+    ylabel('Vertical position (n)');xlabel('Horizontal position (n)');
+    subplot(1,2,2);
+    plot(error(150,1:end));title('Error Slice r=150');
+    ylabel('Color value');xlabel('Horizontal position (n)');
+    max(error)
 end
