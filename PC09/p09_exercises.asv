@@ -54,7 +54,7 @@ subplot(2,1,2);stem(nn,yy_3_1_1(nn),'filled');title('y[n]');xlabel('n');
 
 % c) Error estimation
 % Define an error vector that is the absolute difference between signals.
-for n = 1:length(xx_3_1)
+for n = 1:length(error)
     error(n)=abs(xx_3_1(n)-yy_3_1_1(n));
 end
 n=1:50;     % Bounds for plotting
@@ -77,7 +77,6 @@ P = Fs * 0.2; % 1600
 % b) Describe filter coefficients and determine length.
 % The coefficients will be 1 followed by P-2 zeros followed by 0.9 and
 % the length will be P+1
-bb_3_1_3 = zeros(1,P);
 bb_3_1_3 = [1 bb_3_1_3 0.9];
 
 % c) Implement echo filter on x2 from labdat.mat
@@ -154,7 +153,7 @@ figure(8); image(y_fin); title('Deconv');
 % Calculate how big the ghosts (echoes) are using worst-case error to say
 % how big the ghosts are relative to "black-white" transitions which are
 % 0-255: 
-error2D(echart,y_fin,9)
+error2D(echart,y_fin)
 % 
 % % Extra: Get rid of border effects by padding. These pads are an extension
 % % of the MEAN of the 10 adjacent element values.
@@ -194,12 +193,10 @@ y3_fin = conv2(filt2_3,y3);   % Deconvolve horizontally
 figure(12); image(y3_fin); title('Deconv: M = 33');
 
 % Error
-error2D(echart,y1_fin,13)
-error2D(echart,y3_fin,14)
+error2D(echart,y1_fin)
+error2D(echart,y3_fin)
 
 %% Extra Credit: Filtering Music Waveform
-% This section explores echoing and reverb filters.
-
 [nggyu,Fs] = audioread('nggyu.wav');
 % Range of interest: 1.915e6:2.65e6
 sample = nggyu(1.915e6:2.65e6);
@@ -259,22 +256,22 @@ function y = fir(M,r)
     end
 end
 
-function error2D(orig,recon,n)
+function error2D(orig,recon)
     % This function calculates and plots the difference between
     % an original and reconstructred signal
     % orig: Original MxN image
     % recon: Reconstructed MxN image
-    % n: figure #
     for r=1:size(orig,1)
         for c=1:size(orig,2)
             error(r,c)=abs(orig(r,c)-recon(r,c));
         end
     end
-    figure(n);
+    figure;
     subplot(1,2,1);
     image(error);title('Deconvolution 2D Error');
     ylabel('Vertical position (n)');xlabel('Horizontal position (n)');
     subplot(1,2,2);
     plot(error(150,1:end));title('Error Slice r=150');
     ylabel('Color value');xlabel('Horizontal position (n)');
+    max(error)
 end
