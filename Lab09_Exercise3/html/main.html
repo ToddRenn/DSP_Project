@@ -1,0 +1,584 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>p09_exercises</title><meta name="generator" content="MATLAB 9.9"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2021-05-03"><meta name="DC.source" content="p09_exercises.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; }
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+span.typesection { color:#A0522D }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#2">Load data &amp; Setup Filters</a></li><li><a href="#3">3.1: Deconvolution Experiment for 1D Filters</a></li><li><a href="#4">3.1.1: Restoration Filter</a></li><li><a href="#5">3.1.2 Worst-Case Error</a></li><li><a href="#6">3.1.3 An Echo Filter</a></li><li><a href="#7">3.2 Cascading Two Systems</a></li><li><a href="#8">3.2.1 Overall Impulse Response</a></li><li><a href="#9">3.2.2 Distoring and Restoring Images</a></li><li><a href="#10">3.2.3 A Second Restoration Experiment</a></li><li><a href="#11">Extra Credit: Filtering Music Waveform</a></li><li><a href="#12">FUNCTIONS</a></li></ul></div><pre class="codeinput"><span class="comment">% This file contains the lab exercises for P-09</span>
+</pre><h2 id="2">Load data &amp; Setup Filters</h2><p>This section includes all the necessary data for running all sections. RUN THIS FIRST!   x1: Stair-step input signal   x2: Speech waveform ("Oak is strong") - f = 8k samples/sec   xtv: Actual scan line from a digital image   h1: FIR coefficients   h2: FIR coefficients (more)</p><pre class="codeinput">clc
+clear
+load <span class="string">labdat.mat</span>
+load <span class="string">echart.mat</span>
+
+<span class="comment">% Weighted first-difference filter</span>
+q = 0.9;
+filt1 = [1 -q];
+
+<span class="comment">% Weighted mean filter</span>
+M = 22;
+r = 0.9;
+filt2 = zeros(1,M);
+<span class="keyword">for</span> n = 1:length(filt2)+1
+    filt2(n) = 0.9^(n-1);
+<span class="keyword">end</span>
+</pre><h2 id="3">3.1: Deconvolution Experiment for 1D Filters</h2><p>This section applies a first-difference filter to a signal.</p><pre class="codeinput"><span class="comment">% Generate a signal</span>
+xx_3_1 = 256*(rem(0:100,50)&lt;10);
+
+<span class="comment">% Filter xx_3_1</span>
+w_n_3_1 = firfilt(filt1,xx_3_1);
+
+nn=1:75;    <span class="comment">% Bounds for graphing</span>
+figure(1)
+subplot(2,1,1); stem(nn,xx_3_1(nn)); title(<span class="string">'x[n]'</span>); xlabel(<span class="string">'n'</span>);
+subplot(2,1,2); stem(nn,w_n_3_1(nn),<span class="string">'filled'</span>); title(<span class="string">'w[n]'</span>); xlabel(<span class="string">'n'</span>);
+</pre><img vspace="5" hspace="5" src="p09_exercises_01.png" alt=""> <h2 id="4">3.1.1: Restoration Filter</h2><p>This section restores the destorted signal in the previous section and finds the error between the original and restored signal.</p><pre class="codeinput"><span class="comment">% a) Process w_n with restoration filter</span>
+r = 0.9;
+M = 22;
+yy_3_1_1 = restore(w_n_3_1,M,r);
+
+<span class="comment">% b) Plot the original and restored signals</span>
+figure(2)
+subplot(2,1,1);stem(nn,xx_3_1(nn));title(<span class="string">'x[n]'</span>);xlabel(<span class="string">'n'</span>);
+subplot(2,1,2);stem(nn,yy_3_1_1(nn),<span class="string">'filled'</span>);title(<span class="string">'y[n]'</span>);xlabel(<span class="string">'n'</span>);
+
+<span class="comment">% c) Error estimation</span>
+<span class="comment">% Define an error vector that is the absolute difference between signals.</span>
+<span class="keyword">for</span> n = 1:length(xx_3_1)
+    error(n)=abs(xx_3_1(n)-yy_3_1_1(n));
+<span class="keyword">end</span>
+n=1:50;     <span class="comment">% Bounds for plotting</span>
+figure(3);plot(n,error(n));title(<span class="string">'Error'</span>);ylabel(<span class="string">'Difference'</span>);xlabel(<span class="string">'n'</span>);
+</pre><img vspace="5" hspace="5" src="p09_exercises_02.png" alt=""> <img vspace="5" hspace="5" src="p09_exercises_03.png" alt=""> <h2 id="5">3.1.2 Worst-Case Error</h2><p>This section finds the maximum error between the original and restored signal.</p><pre class="codeinput">worst_case=max(error);
+</pre><h2 id="6">3.1.3 An Echo Filter</h2><p>This section applies an echo to an audio signal at a delay of P samples.</p><pre class="codeinput"><span class="comment">% a) Delay = 0.2s @ 90% given Fs = 8kHz</span>
+<span class="comment">% This section finds the number of samples for a given time delay.</span>
+Fs = 8e3;
+r = 0.9;  <span class="comment">% 90%</span>
+P = Fs * 0.2; <span class="comment">% 1600</span>
+
+<span class="comment">% b) Describe filter coefficients and determine length.</span>
+<span class="comment">% The coefficients will be 1 followed by P-2 zeros followed by 0.9 and</span>
+<span class="comment">% the length will be P+1</span>
+bb_3_1_3 = zeros(1,P);
+bb_3_1_3 = [1 bb_3_1_3 0.9];
+
+<span class="comment">% c) Implement echo filter on x2 from labdat.mat</span>
+echo=firfilt(bb_3_1_3,x2);
+sound(echo,Fs);   <span class="comment">% This is crazy distorted... but so is original x2</span>
+</pre><h2 id="7">3.2 Cascading Two Systems</h2><p>This section explores the effects of cascading two filters meant to cancel each other out.</p><pre class="codeinput"><span class="comment">% Filter 1: w[n] = x[n] - q*x[n-1]</span>
+q = 0.9;
+filt1 = [1 -q];
+<span class="comment">% Filter 2: From 3.1.1 (restoration filter)</span>
+M = 22;
+r = 0.9;
+filt2 = zeros(1,M);
+<span class="keyword">for</span> n = 1:length(filt2)+1
+    filt2(n) = 0.9^(n-1);
+<span class="keyword">end</span>
+
+<span class="comment">% Frequency response of individual filters + system</span>
+N=150;
+ech90=-pi:2*pi/N:pi-2*pi/N;
+H1=fft(filt1,N);
+H2=fft(filt2,N);
+Hsys=H1.*H2;
+figure(4)
+plot(ech90/(2*pi),abs(H2));hold <span class="string">on</span>
+plot(ech90/(2*pi),abs(H1));
+plot(ech90/(2*pi),abs(Hsys));hold <span class="string">off</span>
+title(<span class="string">'Cascade of FIR Filters H_1, H_2'</span>);
+legend(<span class="string">'|H_1|'</span>,<span class="string">'|H_2|'</span>,<span class="string">'|H_S_Y_S|'</span>);
+xlabel(<span class="string">'\omega'</span>);ylabel(<span class="string">'|H(\omega)|'</span>);
+</pre><img vspace="5" hspace="5" src="p09_exercises_04.png" alt=""> <h2 id="8">3.2.1 Overall Impulse Response</h2><p>This section applies the cascaded filter system to an input signal.</p><pre class="codeinput"><span class="comment">% a) Implement cascade with q=0.9, r=0.9, M=22.</span>
+<span class="comment">% Use two calls to firfilt()</span>
+y_3_2_1 = firfilt(filt2, firfilt(filt1, x1));
+
+<span class="comment">% Plot impulse response.</span>
+figure(5);
+hold <span class="string">on</span>
+plot(x1)
+plot(y_3_2_1(1:length(x1)))
+title(<span class="string">'Deconvolution'</span>);
+legend(<span class="string">'original'</span>,<span class="string">'deconv'</span>);
+xlabel(<span class="string">'n'</span>);
+hold <span class="string">off</span>
+
+<span class="comment">% b) Work out impulse response h(n) of this cascade by hand. Verify</span>
+<span class="comment">% correctness.</span>
+
+<span class="comment">% c) What condition on h1(n) and h2(n) needs to be met for this to be</span>
+<span class="comment">% perfect deconvolution? ANS: H1H2 = 1</span>
+</pre><img vspace="5" hspace="5" src="p09_exercises_05.png" alt=""> <h2 id="9">3.2.2 Distoring and Restoring Images</h2><p>This section explores cascaded restoration filters applied to 2D images.</p><pre class="codeinput"><span class="comment">% b) Apply filt1 horizontally and then vertically (q=0.9)</span>
+w = conv2(echart,filt1);    <span class="comment">% Horizontal</span>
+ech90 = conv2(w,filt1');    <span class="comment">% Vertical</span>
+
+<span class="comment">% c) Deconvolve with filt2 (M=22, r=0.9)</span>
+y = conv2(ech90,filt2);
+y_fin = conv2(y,filt2');
+
+figure(6); image(echart); title(<span class="string">'Original image'</span>);
+figure(7); image(ech90); title(<span class="string">'Dist'</span>);
+figure(8); image(y_fin); title(<span class="string">'Deconv'</span>);
+
+<span class="comment">% Calculate how big the ghosts (echoes) are using worst-case error to say</span>
+<span class="comment">% how big the ghosts are relative to "black-white" transitions which are</span>
+<span class="comment">% 0-255:</span>
+error2D(echart,y_fin,9)
+<span class="comment">%</span>
+<span class="comment">% % Extra: Get rid of border effects by padding. These pads are an extension</span>
+<span class="comment">% % of the MEAN of the 10 adjacent element values.</span>
+<span class="comment">% r_idx = length(ech90);  % Right-most index of ech90</span>
+<span class="comment">% for n=1:M</span>
+<span class="comment">%     for row=1:size(ech90,1)</span>
+<span class="comment">%         pad_l(row,n)=mean(ech90(1,1:10));</span>
+<span class="comment">%         pad_r(row,n)=mean(ech90(1,r_idx-10:r_idx));</span>
+<span class="comment">%     end</span>
+<span class="comment">% end</span>
+<span class="comment">% ech90_pad = [pad_l ech90 pad_r];</span>
+<span class="comment">% y=conv2(ech90,filt2);</span>
+<span class="comment">% y_fin=conv2(y,filt2');</span>
+<span class="comment">% figure(10); image(y_fin); title('Deconv w/ Padding');</span>
+</pre><img vspace="5" hspace="5" src="p09_exercises_06.png" alt=""> <img vspace="5" hspace="5" src="p09_exercises_07.png" alt=""> <img vspace="5" hspace="5" src="p09_exercises_08.png" alt=""> <img vspace="5" hspace="5" src="p09_exercises_09.png" alt=""> <h2 id="10">3.2.3 A Second Restoration Experiment</h2><p>This section aims at improving restoration by adjusting filter length M</p><pre class="codeinput"><span class="comment">% a) Deconvolve with different number of taps</span>
+<span class="comment">% M = 11, r = 0.9</span>
+filt2_1 = fir(11,0.9);
+y1 = conv2(filt2_1',ech90);  <span class="comment">% Deconvolve vertically</span>
+y1_fin = conv2(filt2_1,y1);   <span class="comment">% Deconvolve horizontally</span>
+figure(10); image(y1_fin); title(<span class="string">'Deconv: M = 11'</span>);
+
+<span class="comment">% M = 22, r = 0.9</span>
+filt2_2 = fir(22,0.9);
+y2 = conv2(filt2_2',ech90);  <span class="comment">% Deconvolve vertically</span>
+y2_fin = conv2(filt2_2,y2);   <span class="comment">% Deconvolve horizontally</span>
+figure(11); image(y2_fin); title(<span class="string">'Deconv: M = 22'</span>);
+
+<span class="comment">% M = 33, r = 0.9</span>
+filt2_3 = fir(33,0.9);
+y3 = conv2(filt2_3',ech90);  <span class="comment">% Deconvolve vertically</span>
+y3_fin = conv2(filt2_3,y3);   <span class="comment">% Deconvolve horizontally</span>
+figure(12); image(y3_fin); title(<span class="string">'Deconv: M = 33'</span>);
+
+<span class="comment">% Error</span>
+error2D(echart,y1_fin,13)
+error2D(echart,y3_fin,14)
+</pre><img vspace="5" hspace="5" src="p09_exercises_10.png" alt=""> <img vspace="5" hspace="5" src="p09_exercises_11.png" alt=""> <img vspace="5" hspace="5" src="p09_exercises_12.png" alt=""> <img vspace="5" hspace="5" src="p09_exercises_13.png" alt=""> <img vspace="5" hspace="5" src="p09_exercises_14.png" alt=""> <h2 id="11">Extra Credit: Filtering Music Waveform</h2><p>This section explores echoing and reverb filters.</p><pre class="codeinput">[nggyu,Fs] = audioread(<span class="string">'nggyu.wav'</span>);
+<span class="comment">% Range of interest: 1.915e6:2.65e6</span>
+sample = nggyu(1.915e6:2.65e6);
+<span class="comment">% Fs = 44100 Hz</span>
+a = 0.95;    <span class="comment">% Strength of echo</span>
+T = 0.15;    <span class="comment">% Delay (s)</span>
+P = T*Fs;   <span class="comment">% # of samples to achieve delay</span>
+
+<span class="comment">% a) Define the delay filter coefficients for 0.15s delay</span>
+delay = zeros(1,P-1);
+delay = [1/(1+a) delay a/(1+a)];
+
+<span class="comment">% b) Filter the song file.</span>
+<span class="comment">%   QUESTION: Describe sound and use impulse response to</span>
+<span class="comment">% explain why it sounds that way.</span>
+song_delay = firfilt(delay,sample);
+clear <span class="string">sound</span>
+<span class="comment">%sound(song_delay,Fs)    % DJ, rock dem beatz</span>
+
+<span class="comment">% c) Reverberation (multiple echoes) Cascade the filters.</span>
+    <span class="comment">% QUESTION: Derive impulse response for cascade of 4 delays</span>
+song_delay4 = firfilt(delay, firfilt(delay, firfilt(delay, firfilt(delay, sample))));
+<span class="comment">%clear sound</span>
+sound(song_delay4,Fs)
+
+<span class="comment">% d) QUESTION: Describe sound you hear and use impulse response to explain</span>
+<span class="comment">% e) Plot the original + delay</span>
+figure; inout(sample, song_delay, 1, Fs, 4); title(<span class="string">'Single delay'</span>);
+figure; inout(sample, song_delay4, 1, Fs, 4); title(<span class="string">'Reverb'</span>);
+
+audiowrite(<span class="string">'nggyu_reverb.wav'</span>,song_delay4,Fs);
+</pre><img vspace="5" hspace="5" src="p09_exercises_15.png" alt=""> <img vspace="5" hspace="5" src="p09_exercises_16.png" alt=""> <h2 id="12">FUNCTIONS</h2><pre class="codeinput"><span class="keyword">function</span> y = restore(w,M,r)
+    <span class="comment">% This is a restoration filter.</span>
+    <span class="comment">%   w: Filtered signal</span>
+    <span class="comment">%   M: Number of taps</span>
+    <span class="comment">%   r: Weighted modifier</span>
+    y = zeros(1, length(w));
+    <span class="keyword">for</span> n = 1:length(w)
+        <span class="keyword">for</span> l = 0:M
+            <span class="keyword">if</span> (n-l &lt; 1) || (n-l &gt; length(w))
+                <span class="keyword">continue</span>
+            <span class="keyword">end</span>
+            y(n) = y(n) + (r^l)*w(n-l);
+        <span class="keyword">end</span>
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+
+<span class="keyword">function</span> y = fir(M,r)
+    <span class="comment">% This function creates a FIR filter based on filter2 equation</span>
+    <span class="comment">%   M: Number of taps</span>
+    <span class="comment">%   r: Weighted modifier</span>
+    y = zeros(1,M);
+    <span class="keyword">for</span> n = 1:length(y)
+        y(n) = r^(n-1);
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+
+<span class="keyword">function</span> error2D(orig,recon,n)
+    <span class="comment">% This function calculates and plots the difference between</span>
+    <span class="comment">% an original and reconstructred signal</span>
+    <span class="comment">% orig: Original MxN image</span>
+    <span class="comment">% recon: Reconstructed MxN image</span>
+    <span class="comment">% n: figure #</span>
+    <span class="keyword">for</span> r=1:size(orig,1)
+        <span class="keyword">for</span> c=1:size(orig,2)
+            error(r,c)=abs(orig(r,c)-recon(r,c));
+        <span class="keyword">end</span>
+    <span class="keyword">end</span>
+    figure(n);
+    subplot(1,2,1);
+    image(error);title(<span class="string">'Deconvolution 2D Error'</span>);
+    ylabel(<span class="string">'Vertical position (n)'</span>);xlabel(<span class="string">'Horizontal position (n)'</span>);
+    subplot(1,2,2);
+    plot(error(150,1:end));title(<span class="string">'Error Slice r=150'</span>);
+    ylabel(<span class="string">'Color value'</span>);xlabel(<span class="string">'Horizontal position (n)'</span>);
+<span class="keyword">end</span>
+</pre><p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2020b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+% This file contains the lab exercises for P-09
+%% Load data & Setup Filters
+% This section includes all the necessary data for running all sections.
+% RUN THIS FIRST!
+%   x1: Stair-step input signal
+%   x2: Speech waveform ("Oak is strong") - f = 8k samples/sec
+%   xtv: Actual scan line from a digital image
+%   h1: FIR coefficients
+%   h2: FIR coefficients (more)
+clc
+clear
+load labdat.mat
+load echart.mat
+
+% Weighted first-difference filter
+q = 0.9;
+filt1 = [1 -q];
+
+% Weighted mean filter
+M = 22;
+r = 0.9;
+filt2 = zeros(1,M);
+for n = 1:length(filt2)+1
+    filt2(n) = 0.9^(n-1);
+end
+
+%% 3.1: Deconvolution Experiment for 1D Filters
+% This section applies a first-difference filter to a signal.
+
+% Generate a signal
+xx_3_1 = 256*(rem(0:100,50)<10);
+
+% Filter xx_3_1
+w_n_3_1 = firfilt(filt1,xx_3_1);
+
+nn=1:75;    % Bounds for graphing
+figure(1)
+subplot(2,1,1); stem(nn,xx_3_1(nn)); title('x[n]'); xlabel('n');
+subplot(2,1,2); stem(nn,w_n_3_1(nn),'filled'); title('w[n]'); xlabel('n');
+
+%% 3.1.1: Restoration Filter
+% This section restores the destorted signal in the previous section and
+% finds the error between the original and restored signal.
+
+% a) Process w_n with restoration filter
+r = 0.9;
+M = 22;
+yy_3_1_1 = restore(w_n_3_1,M,r);
+
+% b) Plot the original and restored signals
+figure(2)
+subplot(2,1,1);stem(nn,xx_3_1(nn));title('x[n]');xlabel('n');
+subplot(2,1,2);stem(nn,yy_3_1_1(nn),'filled');title('y[n]');xlabel('n');
+
+% c) Error estimation
+% Define an error vector that is the absolute difference between signals.
+for n = 1:length(xx_3_1)
+    error(n)=abs(xx_3_1(n)-yy_3_1_1(n));
+end
+n=1:50;     % Bounds for plotting
+figure(3);plot(n,error(n));title('Error');ylabel('Difference');xlabel('n');
+
+%% 3.1.2 Worst-Case Error
+% This section finds the maximum error between the original and restored
+% signal.
+worst_case=max(error);
+
+%% 3.1.3 An Echo Filter
+% This section applies an echo to an audio signal at a delay of P samples.
+
+% a) Delay = 0.2s @ 90% given Fs = 8kHz
+% This section finds the number of samples for a given time delay.
+Fs = 8e3;
+r = 0.9;  % 90%
+P = Fs * 0.2; % 1600
+
+% b) Describe filter coefficients and determine length.
+% The coefficients will be 1 followed by P-2 zeros followed by 0.9 and
+% the length will be P+1
+bb_3_1_3 = zeros(1,P);
+bb_3_1_3 = [1 bb_3_1_3 0.9];
+
+% c) Implement echo filter on x2 from labdat.mat
+echo=firfilt(bb_3_1_3,x2);
+sound(echo,Fs);   % This is crazy distorted... but so is original x2
+
+%% 3.2 Cascading Two Systems
+% This section explores the effects of cascading two filters meant to
+% cancel each other out.
+
+% Filter 1: w[n] = x[n] - q*x[n-1]
+q = 0.9;
+filt1 = [1 -q];
+% Filter 2: From 3.1.1 (restoration filter)
+M = 22;
+r = 0.9;
+filt2 = zeros(1,M);
+for n = 1:length(filt2)+1
+    filt2(n) = 0.9^(n-1);
+end
+
+% Frequency response of individual filters + system
+N=150;
+ech90=-pi:2*pi/N:pi-2*pi/N;
+H1=fft(filt1,N);
+H2=fft(filt2,N);
+Hsys=H1.*H2;
+figure(4)
+plot(ech90/(2*pi),abs(H2));hold on
+plot(ech90/(2*pi),abs(H1));
+plot(ech90/(2*pi),abs(Hsys));hold off
+title('Cascade of FIR Filters H_1, H_2');
+legend('|H_1|','|H_2|','|H_S_Y_S|');
+xlabel('\omega');ylabel('|H(\omega)|');
+
+%% 3.2.1 Overall Impulse Response
+% This section applies the cascaded filter system to an input signal.
+
+% a) Implement cascade with q=0.9, r=0.9, M=22.
+% Use two calls to firfilt()
+y_3_2_1 = firfilt(filt2, firfilt(filt1, x1));
+
+% Plot impulse response.
+figure(5);
+hold on
+plot(x1)
+plot(y_3_2_1(1:length(x1)))
+title('Deconvolution');
+legend('original','deconv');
+xlabel('n');
+hold off
+
+% b) Work out impulse response h(n) of this cascade by hand. Verify
+% correctness.
+
+% c) What condition on h1(n) and h2(n) needs to be met for this to be
+% perfect deconvolution? ANS: H1H2 = 1
+
+%% 3.2.2 Distoring and Restoring Images
+% This section explores cascaded restoration filters applied to 2D images.
+
+% b) Apply filt1 horizontally and then vertically (q=0.9)
+w = conv2(echart,filt1);    % Horizontal
+ech90 = conv2(w,filt1');    % Vertical
+
+% c) Deconvolve with filt2 (M=22, r=0.9)
+y = conv2(ech90,filt2);
+y_fin = conv2(y,filt2');
+
+figure(6); image(echart); title('Original image');
+figure(7); image(ech90); title('Dist');
+figure(8); image(y_fin); title('Deconv');
+
+% Calculate how big the ghosts (echoes) are using worst-case error to say
+% how big the ghosts are relative to "black-white" transitions which are
+% 0-255: 
+error2D(echart,y_fin,9)
+% 
+% % Extra: Get rid of border effects by padding. These pads are an extension
+% % of the MEAN of the 10 adjacent element values.
+% r_idx = length(ech90);  % Right-most index of ech90
+% for n=1:M
+%     for row=1:size(ech90,1)
+%         pad_l(row,n)=mean(ech90(1,1:10));           
+%         pad_r(row,n)=mean(ech90(1,r_idx-10:r_idx));
+%     end
+% end
+% ech90_pad = [pad_l ech90 pad_r];
+% y=conv2(ech90,filt2);
+% y_fin=conv2(y,filt2');
+% figure(10); image(y_fin); title('Deconv w/ Padding');
+
+
+%% 3.2.3 A Second Restoration Experiment
+% This section aims at improving restoration by adjusting filter length M
+
+% a) Deconvolve with different number of taps
+% M = 11, r = 0.9
+filt2_1 = fir(11,0.9);
+y1 = conv2(filt2_1',ech90);  % Deconvolve vertically
+y1_fin = conv2(filt2_1,y1);   % Deconvolve horizontally
+figure(10); image(y1_fin); title('Deconv: M = 11');
+
+% M = 22, r = 0.9
+filt2_2 = fir(22,0.9);
+y2 = conv2(filt2_2',ech90);  % Deconvolve vertically
+y2_fin = conv2(filt2_2,y2);   % Deconvolve horizontally
+figure(11); image(y2_fin); title('Deconv: M = 22');
+
+% M = 33, r = 0.9
+filt2_3 = fir(33,0.9);
+y3 = conv2(filt2_3',ech90);  % Deconvolve vertically
+y3_fin = conv2(filt2_3,y3);   % Deconvolve horizontally
+figure(12); image(y3_fin); title('Deconv: M = 33');
+
+% Error
+error2D(echart,y1_fin,13)
+error2D(echart,y3_fin,14)
+
+%% Extra Credit: Filtering Music Waveform
+% This section explores echoing and reverb filters.
+
+[nggyu,Fs] = audioread('nggyu.wav');
+% Range of interest: 1.915e6:2.65e6
+sample = nggyu(1.915e6:2.65e6);
+% Fs = 44100 Hz
+a = 0.95;    % Strength of echo
+T = 0.15;    % Delay (s)
+P = T*Fs;   % # of samples to achieve delay
+
+% a) Define the delay filter coefficients for 0.15s delay
+delay = zeros(1,P-1);
+delay = [1/(1+a) delay a/(1+a)];
+
+% b) Filter the song file. 
+%   QUESTION: Describe sound and use impulse response to
+% explain why it sounds that way.
+song_delay = firfilt(delay,sample);
+clear sound
+%sound(song_delay,Fs)    % DJ, rock dem beatz
+
+% c) Reverberation (multiple echoes) Cascade the filters.
+    % QUESTION: Derive impulse response for cascade of 4 delays
+song_delay4 = firfilt(delay, firfilt(delay, firfilt(delay, firfilt(delay, sample))));
+%clear sound
+sound(song_delay4,Fs)
+
+% d) QUESTION: Describe sound you hear and use impulse response to explain
+% e) Plot the original + delay
+figure; inout(sample, song_delay, 1, Fs, 4); title('Single delay');
+figure; inout(sample, song_delay4, 1, Fs, 4); title('Reverb');
+
+audiowrite('nggyu_reverb.wav',song_delay4,Fs);
+
+%% FUNCTIONS
+function y = restore(w,M,r)
+    % This is a restoration filter.
+    %   w: Filtered signal
+    %   M: Number of taps
+    %   r: Weighted modifier
+    y = zeros(1, length(w));
+    for n = 1:length(w)
+        for l = 0:M
+            if (n-l < 1) || (n-l > length(w))
+                continue
+            end
+            y(n) = y(n) + (r^l)*w(n-l);
+        end
+    end
+end
+
+function y = fir(M,r)
+    % This function creates a FIR filter based on filter2 equation
+    %   M: Number of taps
+    %   r: Weighted modifier
+    y = zeros(1,M);
+    for n = 1:length(y)
+        y(n) = r^(n-1);
+    end
+end
+
+function error2D(orig,recon,n)
+    % This function calculates and plots the difference between
+    % an original and reconstructred signal
+    % orig: Original MxN image
+    % recon: Reconstructed MxN image
+    % n: figure #
+    for r=1:size(orig,1)
+        for c=1:size(orig,2)
+            error(r,c)=abs(orig(r,c)-recon(r,c));
+        end
+    end
+    figure(n);
+    subplot(1,2,1);
+    image(error);title('Deconvolution 2D Error');
+    ylabel('Vertical position (n)');xlabel('Horizontal position (n)');
+    subplot(1,2,2);
+    plot(error(150,1:end));title('Error Slice r=150');
+    ylabel('Color value');xlabel('Horizontal position (n)');
+end
+##### SOURCE END #####
+--></body></html>
