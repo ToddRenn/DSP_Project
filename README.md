@@ -8,7 +8,8 @@ Class Project for ECE6530 _Digital Signal Processing_
 >   * _main.m_ : MATLAB code for all Lab09 exercises
 >   * _LAB9_Report.pdf_ : Written report for Lab09
 > * **Lab10_Exercise3**
->   * Luke/Keaton, add files of interest
+>   * DSP_Lab10.m : MATLAB code for all Lab10 exercises
+>   * Final_Lab10.html : Published web-page for Lab10
 > * **Poster**
 >   * _ECE6530_PG2_Poster.pdf_ : Presentation poster
 > * **Evaluation Forms**
