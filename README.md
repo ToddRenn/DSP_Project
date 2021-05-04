@@ -19,5 +19,5 @@ Class Project for ECE6530 _Digital Signal Processing_
 >   * Run the **first section** first - this contains setup files.
 
 > ## LAB**10**: Execution
-> * Luke/Keaton, add these steps
+> * The entire script can be run at once
 
