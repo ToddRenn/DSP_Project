@@ -1,0 +1,414 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>Final_Lab10</title><meta name="generator" content="MATLAB 9.9"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2021-05-04"><meta name="DC.source" content="Final_Lab10.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; }
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+span.typesection { color:#A0522D }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#2">3.1 Edge detection and Location via 1-D filters</a></li><li><a href="#3">Bar code</a></li><li><a href="#4">f/g/h/i for the HP110v3 Bar code</a></li><li><a href="#5">f/g/h/i for the OFFv3 Bar code</a></li></ul></div><pre class="codeinput"><span class="comment">%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
+<span class="comment">%</span>
+<span class="comment">%                   Lab10 FIR Filters for Barcode Reading</span>
+<span class="comment">%                     Group 2: Todd Renner, Tara Zamani,</span>
+<span class="comment">%                         Luke Hartung, Keaton Davis</span>
+<span class="comment">%</span>
+<span class="comment">%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</span>
+</pre><h2 id="2">3.1 Edge detection and Location via 1-D filters</h2><pre class="codeinput">clear
+clc
+xx = 255*(rem(1:159,30)&gt;19);
+
+bb = [1/255, -1/255];
+
+yy = firfilt(xx,bb);
+
+
+figure
+subplot(2,1,1);
+stem(xx)
+title(<span class="string">'Discrete Sig'</span>)
+subplot(2,1,2);
+stem(yy)
+title(<span class="string">'Edges'</span>)
+xlabel(<span class="string">"Time Index (n)"</span>)
+
+
+<span class="comment">% 3.1.b We can see that our first difference filter serves as an edge detection</span>
+<span class="comment">% filter with positive values representing a rising edge, and negative</span>
+<span class="comment">% value representing a falling edge. The output can be expressed as:</span>
+<span class="comment">%  y[n]= &#8706;[n-20]-&#8706;[n-30]+&#8706;[n-50]-&#8706;[n-60]+&#8706;[n-80]-&#8706;[n-90]+&#8706;[n-110]-&#8706;[n-120]+&#8706;[n-140]-&#8706;[n-150]</span>
+
+<span class="comment">% 3.1.1.c: We know that the length of a convolution between two signal xx</span>
+<span class="comment">% and hh will be length(xx) + length(hh) &#8211; 1. This case was no exception</span>
+<span class="comment">% our input had a length of 159 and our filter had a length of two, thus</span>
+<span class="comment">% 159+2-1 = 160, which indeed was the length of our output vector yy.</span>
+
+<span class="comment">% true value setting</span>
+d = [];
+
+<span class="keyword">for</span> i =1:length(yy)
+    <span class="keyword">if</span> abs(yy(i))==1
+        d(i) = true;
+    <span class="keyword">else</span>
+        d(i) = false;
+
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+
+edges = find(d)
+
+figure
+stem(edges)
+title(<span class="string">'Edges in Signal'</span>)
+xlabel(<span class="string">'nth edge'</span>)
+ylabel(<span class="string">'location of edge'</span>)
+
+<span class="comment">% As can be seen in the delta n plot, the values center around four</span>
+<span class="comment">% different widths 8, 16, 24, and 32. This conveys the ideat that there</span>
+<span class="comment">% are 4 different width bars that code a barcode.</span>
+<span class="comment">% Estimated theta by observation theta = 8.</span>
+</pre><pre class="codeoutput">
+edges =
+
+    20    30    50    60    80    90   110   120   140   150
+
+</pre><img vspace="5" hspace="5" src="Final_Lab10_01.png" alt=""> <img vspace="5" hspace="5" src="Final_Lab10_02.png" alt=""> <h2 id="3">Bar code</h2><pre class="codeinput">clear, clc
+HP = imread(<span class="string">'HP110v3.png'</span>);
+
+<span class="comment">%pick a row you want out of the bar code</span>
+m = 250;
+xn = HP(m,:);
+<span class="comment">%the edge detector filter</span>
+bb = [1, -1];
+
+<span class="comment">%do the edge detection</span>
+yn = firfilt(bb, xn);
+
+figure
+subplot(2,1,1);
+stem(xn)
+title(<span class="string">'Discrete Sig'</span>)
+subplot(2,1,2);
+stem(yn)
+title(<span class="string">'Edges'</span>)
+xlabel(<span class="string">"Time Index (n)"</span>)
+
+<span class="comment">%turn the bar code white to black shade to binary</span>
+<span class="keyword">for</span> i =1:length(yn)
+    <span class="keyword">if</span> abs(yn(i))&gt;=60
+        d(i) = true;
+    <span class="keyword">else</span>
+        d(i) = false;
+
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+
+<span class="comment">%this find all the edges</span>
+L = find(d);
+
+figure
+stem(L)
+title(<span class="string">'Edges in Signal'</span>)
+xlabel(<span class="string">'nth edge'</span>)
+ylabel(<span class="string">'location of edge'</span>)
+
+
+<span class="comment">% Delta from L</span>
+<span class="comment">%This finds the width of each strip of color</span>
+Delta = firfilt(bb,L);
+Delta(length(Delta)) = [];
+
+<span class="comment">%plot</span>
+figure
+subplot(2,1,1);
+stem(L)
+title(<span class="string">'Edge Locations'</span>)
+subplot(2,1,2);
+stem(Delta)
+title(<span class="string">'Deltas'</span>)
+xlabel(<span class="string">"nth edge"</span>)
+
+<span class="comment">% e : logic statment</span>
+
+<span class="comment">%Each bar code consists of 12 numbers</span>
+<span class="comment">%each number is 7 units wide</span>
+
+<span class="comment">%3 unit buffer on each end</span>
+
+<span class="comment">%5 unit buffer in the middle</span>
+
+<span class="comment">%Width = 7units*12 + 2*3units + 5 units</span>
+
+<span class="comment">%Width = 95units</span>
+</pre><img vspace="5" hspace="5" src="Final_Lab10_03.png" alt=""> <img vspace="5" hspace="5" src="Final_Lab10_04.png" alt=""> <img vspace="5" hspace="5" src="Final_Lab10_05.png" alt=""> <h2 id="4">f/g/h/i for the HP110v3 Bar code</h2><pre class="codeinput">Theta = max(Delta)/4;
+
+relativeD = round(Delta/Theta)
+relativeD = relativeD(7:65);
+code = decodeUPC(relativeD)
+</pre><pre class="codeoutput">
+relativeD =
+
+  Columns 1 through 13
+
+     0     2     2     4     2     2     1     1     1     1     2     1     3
+
+  Columns 14 through 26
+
+     1     2     1     3     2     1     2     2     1     3     1     2     1
+
+  Columns 27 through 39
+
+     2     1     3     3     2     1     1     1     1     1     1     1     1
+
+  Columns 40 through 52
+
+     1     3     2     1     2     3     1     3     2     1     1     2     2
+
+  Columns 53 through 65
+
+     2     1     1     1     1     4     1     2     3     1     1     1     1
+
+  Columns 66 through 70
+
+     2     2     4     2     3
+
+
+ssbeg =
+
+     1     1     1
+
+
+code =
+
+     8     8     2     7     8     0     4     5     0     1     6     5
+
+</pre><h2 id="5">f/g/h/i for the OFFv3 Bar code</h2><pre class="codeinput">Theta = 11/4;
+
+relativeD = round(Delta/Theta);
+relativeD = relativeD(5:63);
+code = decodeUPC(relativeD)
+</pre><pre class="codeoutput">
+ssbeg =
+
+     5     6     3
+
+Warning: &gt;&gt;decodeUPC: prefix must be three ones 
+
+code =
+
+    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1    -1
+
+</pre><p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2020b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%                   Lab10 FIR Filters for Barcode Reading
+%                     Group 2: Todd Renner, Tara Zamani,
+%                         Luke Hartung, Keaton Davis
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%% 3.1 Edge detection and Location via 1-D filters
+clear 
+clc
+xx = 255*(rem(1:159,30)>19);
+
+bb = [1/255, -1/255];
+
+yy = firfilt(xx,bb);
+
+
+figure
+subplot(2,1,1);
+stem(xx)
+title('Discrete Sig')
+subplot(2,1,2);
+stem(yy) 
+title('Edges')
+xlabel("Time Index (n)")
+
+
+% 3.1.b We can see that our first difference filter serves as an edge detection 
+% filter with positive values representing a rising edge, and negative 
+% value representing a falling edge. The output can be expressed as:
+%  y[n]= ∂[n-20]-∂[n-30]+∂[n-50]-∂[n-60]+∂[n-80]-∂[n-90]+∂[n-110]-∂[n-120]+∂[n-140]-∂[n-150]
+
+% 3.1.1.c: We know that the length of a convolution between two signal xx 
+% and hh will be length(xx) + length(hh) – 1. This case was no exception 
+% our input had a length of 159 and our filter had a length of two, thus 
+% 159+2-1 = 160, which indeed was the length of our output vector yy.
+
+% true value setting
+d = [];
+
+for i =1:length(yy)
+    if abs(yy(i))==1
+        d(i) = true;
+    else 
+        d(i) = false;
+        
+    end
+end
+
+edges = find(d)
+
+figure
+stem(edges)
+title('Edges in Signal')
+xlabel('nth edge')
+ylabel('location of edge')
+
+% As can be seen in the delta n plot, the values center around four 
+% different widths 8, 16, 24, and 32. This conveys the ideat that there 
+% are 4 different width bars that code a barcode.
+% Estimated theta by observation theta = 8.
+
+
+%% Bar code
+clear, clc
+HP = imread('HP110v3.png');
+
+%pick a row you want out of the bar code
+m = 250;
+xn = HP(m,:);
+%the edge detector filter
+bb = [1, -1];
+
+%do the edge detection
+yn = firfilt(bb, xn);
+
+figure
+subplot(2,1,1);
+stem(xn)
+title('Discrete Sig')
+subplot(2,1,2);
+stem(yn) 
+title('Edges')
+xlabel("Time Index (n)")
+
+%turn the bar code white to black shade to binary
+for i =1:length(yn)
+    if abs(yn(i))>=60
+        d(i) = true;
+    else 
+        d(i) = false;
+        
+    end
+end
+
+%this find all the edges
+L = find(d);
+
+figure
+stem(L)
+title('Edges in Signal')
+xlabel('nth edge')
+ylabel('location of edge')
+
+
+% Delta from L 
+%This finds the width of each strip of color
+Delta = firfilt(bb,L);
+Delta(length(Delta)) = [];
+
+%plot
+figure
+subplot(2,1,1);
+stem(L)
+title('Edge Locations')
+subplot(2,1,2);
+stem(Delta) 
+title('Deltas')
+xlabel("nth edge")
+
+% e : logic statment
+
+%Each bar code consists of 12 numbers
+%each number is 7 units wide
+
+%3 unit buffer on each end
+
+%5 unit buffer in the middle
+
+%Width = 7units*12 + 2*3units + 5 units
+
+%Width = 95units
+
+%% f/g/h/i for the HP110v3 Bar code
+
+Theta = max(Delta)/4;
+
+relativeD = round(Delta/Theta)
+relativeD = relativeD(7:65);
+code = decodeUPC(relativeD)
+
+
+
+%% f/g/h/i for the OFFv3 Bar code
+Theta = 11/4;
+
+relativeD = round(Delta/Theta);
+relativeD = relativeD(5:63);
+code = decodeUPC(relativeD)
+##### SOURCE END #####
+--></body></html>
